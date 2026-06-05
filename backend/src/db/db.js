@@ -6,8 +6,15 @@ require('dotenv').config();
 const dbClient = process.env.DB_CLIENT || 'sqlite3';
 const isSqlite = dbClient === 'sqlite3';
 
+// DB_PATH takes priority (absolute path — used on Render persistent disk e.g. /var/data/taskforge.db)
+// DB_FILE is the legacy relative path (used in local dev)
+const getSqliteFilename = () => {
+  if (process.env.DB_PATH) return process.env.DB_PATH; // absolute path from env
+  return path.resolve(__dirname, '../../', process.env.DB_FILE || './src/db/dev.sqlite3');
+};
+
 const connectionConfig = isSqlite
-  ? { filename: path.resolve(__dirname, '../../', process.env.DB_FILE || './src/db/dev.sqlite3') }
+  ? { filename: getSqliteFilename() }
   : {
       host: process.env.DB_HOST,
       port: Number(process.env.DB_PORT || 3306),

@@ -20,7 +20,13 @@ const debugRouter = require('./routes/debug');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const UPLOAD_DIR = path.resolve(__dirname, '../', process.env.UPLOAD_DIR || './uploads');
+
+// UPLOAD_DIR: if absolute path is given (Render persistent disk), use it directly
+// otherwise resolve relative to the backend folder (local dev)
+const rawUploadDir = process.env.UPLOAD_DIR || './uploads';
+const UPLOAD_DIR = path.isAbsolute(rawUploadDir)
+  ? rawUploadDir
+  : path.resolve(__dirname, '../', rawUploadDir);
 
 // Ensure attachments directory exists
 if (!fs.existsSync(UPLOAD_DIR)) {
