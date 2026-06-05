@@ -43,6 +43,20 @@ app.use('/api/reports', reportRouter);
 app.use('/api/users', userRouter);
 app.use('/api/debug', debugRouter);
 
+// Serve React frontend in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+  app.use(express.static(frontendDistPath));
+
+  // Catch-all: send index.html for any non-API, non-upload route
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.resolve(frontendDistPath, 'index.html'));
+  });
+}
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error('[SERVER ERROR]', err);
