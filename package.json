@@ -1,0 +1,14 @@
+{
+  "name": "role-based-project-task-management",
+  "version": "1.0.0",
+  "description": "Role-Based Project & Task Management System with Audit Logs, Notifications, and Reports",
+  "main": "index.js",
+  "scripts": {
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "test": "npm run test --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
