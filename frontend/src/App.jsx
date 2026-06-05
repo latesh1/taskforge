@@ -98,6 +98,18 @@ export default function App() {
   // Fetch triggers
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  // Toast notifications state
+  const [toasts, setToasts] = useState([]);
+
+  // Toast trigger helper
+  const showToast = (message, type = 'success') => {
+    const id = Date.now() + Math.random().toString(36).substr(2, 9);
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4500);
+  };
+
   // Set auth header helper
   const authHeader = () => ({ 'Authorization': `Bearer ${token}` });
 
@@ -284,8 +296,9 @@ export default function App() {
       setIsProjectModalOpen(false);
       setEditingProject(null);
       setRefreshTrigger(p => p + 1);
+      showToast(editingProject ? 'Project specifications updated!' : 'Project created successfully!');
     } catch (err) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -324,8 +337,9 @@ export default function App() {
       setIsTaskModalOpen(false);
       setEditingTask(null);
       setRefreshTrigger(p => p + 1);
+      showToast(editingTask ? 'Task specifications updated!' : 'Project task created successfully!');
     } catch (err) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -343,8 +357,9 @@ export default function App() {
         throw new Error(err.error);
       }
       setRefreshTrigger(p => p + 1);
+      showToast(`Task moved to: ${nextStatus}`);
     } catch (err) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -388,8 +403,9 @@ export default function App() {
       setIsLogModalOpen(false);
       setLogForm({ description: '', hours_worked: '', attachment: null });
       setRefreshTrigger(p => p + 1);
+      showToast('Work hours successfully logged!');
     } catch (err) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -426,8 +442,9 @@ export default function App() {
       setLogReplies(prev => [...prev, reply]);
       setNewReplyText('');
       setRefreshTrigger(p => p + 1);
+      showToast('Reply added to log conversation.');
     } catch (err) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -453,8 +470,9 @@ export default function App() {
       setEditingUser(null);
       setUserForm({ name: '', email: '', password: '', role_id: 3 });
       setRefreshTrigger(p => p + 1);
+      showToast(editingUser ? 'User credentials updated!' : 'User account created successfully!');
     } catch (err) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -471,8 +489,9 @@ export default function App() {
         throw new Error(err.error);
       }
       setRefreshTrigger(p => p + 1);
+      showToast('User account successfully deleted.');
     } catch (err) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -503,7 +522,7 @@ export default function App() {
   const triggerDeadlineCheck = async () => {
     // For demonstration, we perform a request to a mock runner,
     // or notify user that the node-cron scheduler is actively scanning every 60 seconds
-    alert('Deadlines scanner is active! The node-cron daemon is actively scanning dates every 60 seconds in the background.');
+    showToast('Deadlines scanner active! Daemon is scanning dates in the background.', 'info');
   };
 
   // Render Login & Password Reset view if not authenticated
@@ -564,6 +583,45 @@ export default function App() {
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                 Sign In
               </button>
+
+              <div className="login-presets-container animate-slideUp">
+                <div className="login-presets-title">Quick Demo Login Presets</div>
+                <div className="login-presets-grid">
+                  <div 
+                    className="preset-btn-card"
+                    onClick={() => {
+                      setLoginEmail('admin@company.com');
+                      setLoginPassword('admin123');
+                      showToast('Credentials filled. Click "Sign In" to access Admin Panel!', 'info');
+                    }}
+                  >
+                    <span className="preset-role-badge preset-role-admin">Admin</span>
+                    <span className="preset-email-label">admin@...</span>
+                  </div>
+                  <div 
+                    className="preset-btn-card"
+                    onClick={() => {
+                      setLoginEmail('pm1@company.com');
+                      setLoginPassword('pm123');
+                      showToast('Credentials filled. Click "Sign In" to access Manager Workspace!', 'info');
+                    }}
+                  >
+                    <span className="preset-role-badge preset-role-pm">PM</span>
+                    <span className="preset-email-label">pm1@...</span>
+                  </div>
+                  <div 
+                    className="preset-btn-card"
+                    onClick={() => {
+                      setLoginEmail('emp1@company.com');
+                      setLoginPassword('emp123');
+                      showToast('Credentials filled. Click "Sign In" to access Employee Workspace!', 'info');
+                    }}
+                  >
+                    <span className="preset-role-badge preset-role-emp">Employee</span>
+                    <span className="preset-email-label">emp1@...</span>
+                  </div>
+                </div>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleForgotPassword}>
@@ -1070,6 +1128,7 @@ export default function App() {
                 onUpdateTaskStatus={handleUpdateTaskStatus} 
                 currentUser={user} 
                 onViewTask={handleViewTask}
+                workLogs={workLogs}
               />
             </div>
           )}
@@ -1919,6 +1978,16 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Toast notifications rendering portal */}
+      <div className="toast-container">
+        {toasts.map(t => (
+          <div key={t.id} className={`toast toast-${t.type}`}>
+            <div style={{ flexGrow: 1, fontSize: '0.86rem' }}>{t.message}</div>
+            <button className="toast-close" onClick={() => setToasts(prev => prev.filter(item => item.id !== t.id))}>×</button>
+          </div>
+        ))}
+      </div>
 
     </div>
   );

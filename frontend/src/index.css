@@ -1597,3 +1597,214 @@ select.form-control {
   border: none;
   margin: 1rem 0;
 }
+
+/* ============================================================
+   UPGRADED UI/UX ADDITIONS — TOASTS, PRESETS, SVG CHARTS
+   ============================================================ */
+
+/* ─── Toast Alerts ────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  min-width: 300px;
+  max-width: 420px;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  background: rgba(12, 22, 44, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), var(--shadow-glow);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  animation: slideInLeft 0.35s var(--ease-out) both;
+  transition: all 0.25s ease;
+}
+
+.toast-success {
+  border-left: 4px solid var(--color-active);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+}
+
+.toast-error {
+  border-left: 4px solid var(--color-critical);
+  box-shadow: 0 10px 30px rgba(248, 113, 113, 0.15);
+}
+
+.toast-info {
+  border-left: 4px solid var(--color-planning);
+  box-shadow: 0 10px 30px rgba(56, 189, 248, 0.15);
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.1rem;
+  margin-left: auto;
+  transition: color 0.2s;
+}
+.toast-close:hover {
+  color: var(--text-main);
+}
+
+/* ─── Quick Login Presets ──────────────────────────────────── */
+.login-presets-container {
+  margin-top: 1.75rem;
+  border-top: 1px solid var(--border-glass);
+  padding-top: 1.25rem;
+}
+
+.login-presets-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.login-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.preset-btn-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preset-btn-card:hover {
+  background: rgba(99, 102, 241, 0.07);
+  border-color: var(--border-glass-active);
+  transform: translateY(-2px);
+}
+
+.preset-role-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.preset-role-admin { color: #a78bfa; }
+.preset-role-pm { color: var(--color-planning); }
+.preset-role-emp { color: var(--color-active); }
+
+.preset-email-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Interactive SVG Analytics Charts ──────────────────────── */
+.chart-container-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 220px;
+}
+
+.donut-segment {
+  transition: stroke-width 0.3s ease, filter 0.3s ease;
+  cursor: pointer;
+}
+
+.donut-segment:hover {
+  stroke-width: 24;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.15));
+}
+
+.donut-text-val {
+  font-size: 2.2rem;
+  font-weight: 800;
+  fill: var(--text-main);
+  text-anchor: middle;
+  font-family: var(--font-title);
+}
+
+.donut-text-lbl {
+  font-size: 0.75rem;
+  font-weight: 500;
+  fill: var(--text-sub);
+  text-anchor: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Horizontal Bar chart */
+.svg-bar-row {
+  cursor: pointer;
+}
+
+.svg-bar-bg {
+  fill: rgba(255, 255, 255, 0.03);
+  rx: 4px;
+}
+
+.svg-bar-fill {
+  rx: 4px;
+  transition: width 0.8s var(--ease-out), fill 0.3s ease;
+}
+
+.svg-bar-row:hover .svg-bar-fill {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 4px var(--cyan-glow));
+}
+
+.svg-bar-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  fill: var(--text-sub);
+}
+
+.svg-bar-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+
+/* ─── Kanban Improvements ──────────────────────────────────── */
+.kanban-card-metrics {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+.kanban-card-metric-item {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.kanban-card-metric-item.active {
+  color: var(--color-planning);
+}
+

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Calendar, User, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, User, Clock, MessageSquare } from 'lucide-react';
 
 const COLUMNS = [
   { id: 'To Do', name: 'To Do', color: '#fbbf24' },
@@ -9,17 +9,25 @@ const COLUMNS = [
   { id: 'Completed', name: 'Completed', color: '#10b981' },
 ];
 
-export default function KanbanBoard({ tasks, onUpdateTaskStatus, currentUser, onViewTask }) {
+export default function KanbanBoard({ tasks, onUpdateTaskStatus, currentUser, onViewTask, workLogs = [] }) {
+  const [dragOverCol, setDragOverCol] = useState(null);
+
   const handleDragStart = (e, taskId) => {
     e.dataTransfer.setData('text/plain', taskId);
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e, columnId) => {
     e.preventDefault();
+    setDragOverCol(columnId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverCol(null);
   };
 
   const handleDrop = async (e, targetStatus) => {
     e.preventDefault();
+    setDragOverCol(null);
     const taskIdStr = e.dataTransfer.getData('text/plain');
     if (!taskIdStr) return;
 
@@ -45,12 +53,14 @@ export default function KanbanBoard({ tasks, onUpdateTaskStatus, currentUser, on
     <div className="kanban-container">
       {COLUMNS.map((col) => {
         const columnTasks = tasks.filter((t) => t.status === col.id);
+        const isDraggingOver = dragOverCol === col.id;
 
         return (
           <div
             key={col.id}
-            className="kanban-column"
-            onDragOver={handleDragOver}
+            className={`kanban-column ${isDraggingOver ? 'drag-over' : ''}`}
+            onDragOver={(e) => handleDragOver(e, col.id)}
+            onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, col.id)}
           >
             <div className="kanban-column-header">
@@ -66,20 +76,30 @@ export default function KanbanBoard({ tasks, onUpdateTaskStatus, currentUser, on
 
             <div className="kanban-column-body">
               {columnTasks.length === 0 ? (
-                <div style={{
-                  padding: '2rem',
-                  textAlign: 'center',
-                  color: 'var(--text-muted)',
-                  fontSize: '0.85rem',
-                  border: '1px dashed var(--border-glass)',
-                  borderRadius: '12px'
-                }}>
-                  Drop tasks here
+                <div 
+                  className="kanban-drop-zone"
+                  style={{
+                    padding: '2.5rem 1rem',
+                    textAlign: 'center',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.82rem',
+                    border: isDraggingOver ? '1.5px dashed var(--accent)' : '1.5px dashed var(--border-glass)',
+                    borderRadius: '12px',
+                    transition: 'all 0.2s ease',
+                    background: isDraggingOver ? 'rgba(99, 102, 241, 0.04)' : 'transparent'
+                  }}
+                >
+                  {isDraggingOver ? 'Drop to update status' : 'Drop tasks here'}
                 </div>
               ) : (
                 columnTasks.map((task) => {
                   const deadlineDate = new Date(task.deadline);
                   const isOverdue = deadlineDate < new Date() && task.status !== 'Completed';
+
+                  // Calculate task hours and logs metrics
+                  const taskLogs = workLogs.filter((log) => log.task_id === task.id);
+                  const totalHoursLogged = taskLogs.reduce((sum, log) => sum + Number(log.hours_worked), 0);
+                  const logsCount = taskLogs.length;
 
                   return (
                     <div
@@ -87,7 +107,7 @@ export default function KanbanBoard({ tasks, onUpdateTaskStatus, currentUser, on
                       draggable
                       onDragStart={(e) => handleDragStart(e, task.id)}
                       onClick={() => onViewTask(task)}
-                      className="glass-card glass-card-interactive kanban-card"
+                      className={`glass-card glass-card-interactive kanban-card ${isOverdue ? 'overdue' : ''}`}
                     >
                       <span className={`task-tag priority-${task.priority.toLowerCase()}`}>
                         {task.priority}
@@ -96,7 +116,25 @@ export default function KanbanBoard({ tasks, onUpdateTaskStatus, currentUser, on
                       <h4 className="kanban-card-title">{task.name}</h4>
                       <p className="kanban-card-desc">{task.description || 'No description provided.'}</p>
 
-                      <div className="kanban-card-meta">
+                      {/* Display task comment thread & hours count if present */}
+                      {(logsCount > 0 || totalHoursLogged > 0) && (
+                        <div className="kanban-card-metrics">
+                          {logsCount > 0 && (
+                            <span className="kanban-card-metric-item active" title={`${logsCount} work logs recorded`}>
+                              <MessageSquare size={12} style={{ display: 'inline' }} />
+                              <span>{logsCount} log{logsCount > 1 ? 's' : ''}</span>
+                            </span>
+                          )}
+                          {totalHoursLogged > 0 && (
+                            <span className="kanban-card-metric-item" title={`${totalHoursLogged} hours logged so far`}>
+                              <Clock size={12} style={{ display: 'inline' }} />
+                              <span>{totalHoursLogged}h logged</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="kanban-card-meta" style={{ marginTop: (logsCount > 0 || totalHoursLogged > 0) ? '0.55rem' : '0.9rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: isOverdue ? 'var(--color-critical)' : 'inherit' }}>
                           <Calendar size={12} />
                           <span style={{ fontWeight: isOverdue ? '600' : 'normal' }}>
